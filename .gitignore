@@ -1,0 +1,13 @@
+Exe.txt
+*.exe
+dist/
+build/
+.venv/
+.venv-*/
+__pycache__/
+*.pyc
+*.log
+*.spec
+/*.url
+/*.zip
+/bm-windows-on-top.json
