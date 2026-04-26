@@ -1,12 +1,8 @@
 @echo off
 setlocal EnableExtensions
 cd /d "%~dp0"
-for %%I in ("%~dp0.") do set "BM_ROOT=%%~fI"
-
 set "OUT=bm-windows-on-top_win7.exe"
-set "PYI_DIST=dist"
-set "PYI_WORK=build"
-set "PYI_SPEC=."
+set "PIPY="
 
 echo [build_win7] Build Win7+tkinter: %OUT%
 echo [build_win7] cleaning build/dist contents, exe in project root
@@ -16,6 +12,7 @@ if not exist "dist" mkdir "dist" 2>nul
 call :clean_dir_contents "build"
 call :clean_dir_contents "dist"
 if exist "bm-windows-on-top.spec" del /f /q "bm-windows-on-top.spec" 2>nul
+if exist "bm-windows-on-top_win7.spec" del /f /q "bm-windows-on-top_win7.spec" 2>nul
 if exist "%OUT%" del /f /q "%OUT%" 2>nul
 
 call :find_python
@@ -36,41 +33,16 @@ if errorlevel 1 (
   goto :end_fail
 )
 
-%PIPY% gen_icons.py
-if not exist "icons\icon.ico" (
-  echo [build_win7] FAIL: no icons\icon.ico (pip install pillow^)
-  goto :end_fail
-)
-
-if not exist "wav\switch.wav" (
-  echo [build_win7] FAIL: no wav\switch.wav ^(provide fixed shared wav file^)
-  goto :end_fail
-)
-
-%PIPY% -m PyInstaller --noconfirm --clean --noconsole --onefile --name "bm-windows-on-top_win7" --distpath "%PYI_DIST%" --workpath "%PYI_WORK%" --specpath "%PYI_SPEC%" --icon="%BM_ROOT%\icons\icon.ico" --version-file "%BM_ROOT%\version_info.txt" --hidden-import "pystray" --hidden-import "keyboard" --add-data "%BM_ROOT%\icons;icons" --add-data "%BM_ROOT%\wav;wav" "%BM_ROOT%\main.py"
+%PIPY% build.py win7
 if errorlevel 1 (
-  echo [build_win7] FAIL: PyInstaller
-  goto :end_fail
-)
-
-if not exist "%PYI_DIST%\%OUT%" (
-  echo [build_win7] FAIL: missing %OUT% in %PYI_DIST%
-  goto :end_fail
-)
-
-move /y "%PYI_DIST%\%OUT%" "%OUT%" >nul
-if errorlevel 1 (
-  echo [build_win7] FAIL: move output to project root
+  echo [build_win7] FAIL: build.py
   goto :end_fail
 )
 
 if not exist "%OUT%" (
-  echo [build_win7] FAIL: missing %OUT% after move
+  echo [build_win7] FAIL: missing %OUT%
   goto :end_fail
 )
-
-call :clean_dir_contents "build"
-call :clean_dir_contents "dist"
 
 echo [build_win7] OK: %CD%\%OUT%
 goto :end_ok

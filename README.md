@@ -108,11 +108,10 @@ build_win10+win7.bat
 
 說明：
 
-- PyInstaller 先輸出至暫存目錄 `dist`，腳本會將 exe **搬移到專案根目錄**，再清空 `build`／`dist` 內容。
-- `bm-windows-on-top.exe`：安裝 `requirements-win10.txt` 後由 `build_win10.bat` 內之 PyInstaller 指令產出。
-- `bm-windows-on-top_win7.exe`：安裝 `requirements-win7.txt` 後由 `build_win7.bat` 產出。
+- `build.py` 內之流程：先執行 `gen_icons.py`，再檢查 `icons\icon.ico` 與 `wav\switch.wav`；以 PyInstaller 建置、將 exe 搬回專案根目錄，最後清空 `build`／`dist` 並刪除可能產生之 `*.spec`（不納入版控）。
+- `build_win10.bat`／`build_win7.bat` 負責選用正確的 Python 與 `pip install -r requirements-*.txt`，然後呼叫 `build.py win10` 或 `win7`。
 - 在 Win7 上請執行 `bm-windows-on-top_win7.exe`，不要執行 `bm-windows-on-top.exe`。
-- 打包前需已存在 `icons\icon.ico` 與 `wav\switch.wav`（可執行 `gen_icons.py`、`gen_switch_wav.py` 或由建置流程產生／提供固定檔案）。
+- 若缺少 `icons` 或 `wav`，可先手動執行 `gen_icons.py`、`gen_switch_wav.py` 備好素材再打包。
 
 ---
 
@@ -146,7 +145,7 @@ python main.py
 - 系統匣：`pystray` + `Pillow`
 - 熱鍵：`keyboard` 套件（全域熱鍵）
 - 防多開：`CreateMutexW`（`Global\bm-windows-on-top`）+ Named Pipe IPC
-- 打包：`pyinstaller`（onefile、`--noconsole`）
+- 打包：`pyinstaller`（onefile、無主控台，由 `build.py` 帶入 `--windowed` 等同效果）
 - 設定檔：EXE 同層 `bm-windows-on-top.json`（Win10／Win7 exe 共用）
 
 ---
@@ -157,6 +156,7 @@ python main.py
 | 路徑                            | 說明                                      |
 | ----------------------------- | --------------------------------------- |
 | `main.py`                      | 主程式（UI、熱鍵、置頂、系統匣、防多開、設定）            |
+| `build.py`                      | Windows 單檔建置邏輯（`gen_icons`、PyInstaller、清 `*.spec`）       |
 | `build_win7.bat`               | Win7 單檔打包（最終 exe 於專案根目錄）               |
 | `build_win10.bat`              | Win10 單檔打包（最終 exe 於專案根目錄）              |
 | `build_win10+win7.bat`         | 依序呼叫上兩者                                |
