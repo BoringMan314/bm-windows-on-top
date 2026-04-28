@@ -11,8 +11,6 @@ if not exist "build" mkdir "build" 2>nul
 if not exist "dist" mkdir "dist" 2>nul
 call :clean_dir_contents "build"
 call :clean_dir_contents "dist"
-if exist "bm-windows-on-top.spec" del /f /q "bm-windows-on-top.spec" 2>nul
-if exist "bm-windows-on-top_win7.spec" del /f /q "bm-windows-on-top_win7.spec" 2>nul
 if exist "%OUT%" del /f /q "%OUT%" 2>nul
 
 call :find_python

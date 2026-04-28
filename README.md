@@ -108,7 +108,7 @@ build_win10+win7.bat
 
 說明：
 
-- `build.py` 內之流程：先執行 `gen_icons.py`，再檢查 `icons\icon.ico` 與 `wav\switch.wav`；以 PyInstaller 建置、將 exe 搬回專案根目錄，最後清空 `build`／`dist` 並刪除可能產生之 `*.spec`（不納入版控）。
+- `build.py` 內之流程：先執行 `gen_icons.py`，再檢查 `icons\icon.ico` 與 `wav\switch.wav`；以 PyInstaller 建置（`--specpath` 設於 `build`）、將 exe 搬回專案根目錄，最後清空 `build`／`dist`。
 - `build_win10.bat`／`build_win7.bat` 負責選用正確的 Python 與 `pip install -r requirements-*.txt`，然後呼叫 `build.py win10` 或 `win7`。
 - 在 Win7 上請執行 `bm-windows-on-top_win7.exe`，不要執行 `bm-windows-on-top.exe`。
 - 若缺少 `icons` 或 `wav`，可先手動執行 `gen_icons.py`、`gen_switch_wav.py` 備好素材再打包。
@@ -156,7 +156,7 @@ python main.py
 | 路徑                            | 說明                                      |
 | ----------------------------- | --------------------------------------- |
 | `main.py`                      | 主程式（UI、熱鍵、置頂、系統匣、防多開、設定）            |
-| `build.py`                      | Windows 單檔建置邏輯（`gen_icons`、PyInstaller、清 `*.spec`）       |
+| `build.py`                      | Windows 單檔建置邏輯（`gen_icons`、PyInstaller）                    |
 | `build_win7.bat`               | Win7 單檔打包（最終 exe 於專案根目錄）               |
 | `build_win10.bat`              | Win10 單檔打包（最終 exe 於專案根目錄）              |
 | `build_win10+win7.bat`         | 依序呼叫上兩者                                |

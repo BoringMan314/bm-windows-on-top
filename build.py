@@ -30,14 +30,6 @@ def add_data_arg(source: Path, target: str) -> str:
     return str(source) + os.pathsep + target
 
 
-def remove_stale_specs() -> None:
-    for p in PROJECT_ROOT.glob("*.spec"):
-        try:
-            p.unlink()
-        except OSError:
-            pass
-
-
 def replace_exe(built: Path, final: Path) -> None:
     if final.exists():
         final.unlink()
@@ -81,56 +73,52 @@ def require_version_info() -> Path:
 
 
 def build(mode: str) -> None:
-    remove_stale_specs()
-    try:
-        check_python(mode)
-        vinfo = require_version_info()
-        clear_dir(BUILD_DIR)
-        clear_dir(DIST_DIR)
+    check_python(mode)
+    vinfo = require_version_info()
+    clear_dir(BUILD_DIR)
+    clear_dir(DIST_DIR)
 
-        run_gen_icons()
-        assert_packaging_assets()
+    run_gen_icons()
+    assert_packaging_assets()
 
-        exe_name = APP_NAME if mode == "win10" else f"{APP_NAME}_win7"
-        command: list[str] = [
-            sys.executable,
-            "-m",
-            "PyInstaller",
-            "--noconfirm",
-            "--clean",
-            "--onefile",
-            "--windowed",
-            "--name",
-            exe_name,
-            "--workpath",
-            str(BUILD_DIR),
-            "--distpath",
-            str(DIST_DIR),
-            "--specpath",
-            str(PROJECT_ROOT),
-            "--icon",
-            str(PROJECT_ROOT / "icons" / "icon.ico"),
-            "--version-file",
-            str(vinfo),
-            "--add-data",
-            add_data_arg(PROJECT_ROOT / "icons", "icons"),
-            "--add-data",
-            add_data_arg(PROJECT_ROOT / "wav", "wav"),
-        ]
-        for h in HIDDEN_IMPORTS:
-            command.extend(["--hidden-import", h])
-        command.append(str(PROJECT_ROOT / "main.py"))
-        subprocess.check_call(command, cwd=str(PROJECT_ROOT))
+    exe_name = APP_NAME if mode == "win10" else f"{APP_NAME}_win7"
+    command: list[str] = [
+        sys.executable,
+        "-m",
+        "PyInstaller",
+        "--noconfirm",
+        "--clean",
+        "--onefile",
+        "--windowed",
+        "--name",
+        exe_name,
+        "--workpath",
+        str(BUILD_DIR),
+        "--distpath",
+        str(DIST_DIR),
+        "--specpath",
+        str(BUILD_DIR),
+        "--icon",
+        str(PROJECT_ROOT / "icons" / "icon.ico"),
+        "--version-file",
+        str(vinfo),
+        "--add-data",
+        add_data_arg(PROJECT_ROOT / "icons", "icons"),
+        "--add-data",
+        add_data_arg(PROJECT_ROOT / "wav", "wav"),
+    ]
+    for h in HIDDEN_IMPORTS:
+        command.extend(["--hidden-import", h])
+    command.append(str(PROJECT_ROOT / "main.py"))
+    subprocess.check_call(command, cwd=str(PROJECT_ROOT))
 
-        built = DIST_DIR / f"{exe_name}.exe"
-        final = PROJECT_ROOT / f"{exe_name}.exe"
-        replace_exe(built, final)
+    built = DIST_DIR / f"{exe_name}.exe"
+    final = PROJECT_ROOT / f"{exe_name}.exe"
+    replace_exe(built, final)
 
-        clear_dir(BUILD_DIR)
-        clear_dir(DIST_DIR)
-        print("Built " + final.name)
-    finally:
-        remove_stale_specs()
+    clear_dir(BUILD_DIR)
+    clear_dir(DIST_DIR)
+    print("Built " + final.name)
 
 
 def main() -> None:
